@@ -4,7 +4,7 @@ This document explains the types of files and data that comprise the General Bik
 
 ## Reference version
 
-This documentation refers to **v3.1-RC2**.
+This documentation refers to **v3.1-RC3**.
 
 For past and upcoming versions see the [README](https://github.com/MobilityData/gbfs/blob/master/README.md#current-version-recommended).
 
@@ -109,7 +109,7 @@ Beginning with v3.0, hours and dates of operation are described using the Open S
 * [OSM opening_hours validation tool](https://openingh.openstreetmap.de/evaluation_tool/)
 * [OSM opening_hours project and code libraries](https://github.com/opening-hours)
 
-Hours and dates of operation SHOULD be published even in cases where services are continuously available 24/7. During periods when a system or station is outside of opening hours, stations SHOULD be set to `is_renting = false`. During these periods, `station_status.json.num_vehicles_available` and `station_status.json.num_docks_available` SHOULD reflect the number of vehicles and docks that would be available if the system or station were open. The `vehicles` array in `vehicle_status` SHOULD reflect those vehicles that are in the field and accessible to users that would be available for rental if the system were open.
+Hours and dates of operation MUST be published even in cases where services are continuously available 24/7. During periods when a system or station is outside of opening hours, stations SHOULD be set to `is_renting = false`. During these periods, `station_status.json.num_vehicles_available` and `station_status.json.num_docks_available` SHOULD reflect the number of vehicles and docks that would be available if the system or station were open. The `vehicles` array in `vehicle_status` SHOULD reflect those vehicles that are in the field and accessible to users that would be available for rental if the system were open.
 
 ## File Requirements
 
@@ -124,8 +124,12 @@ Hours and dates of operation SHOULD be published even in cases where services ar
 
 * Files are distributed as individual HTTP endpoints.
     * All endpoints MUST use HTTPS
+    * All endpoints SHOULD respond to HTTP requests in less than 1 second
     * REQUIRED files MUST NOT 404. They MUST return a properly formatted JSON file as defined in [Output Format](#output-format).
     * OPTIONAL files MAY 404. A 404 of an OPTIONAL file SHOULD NOT be considered an error.
+* HTTP responses SHOULD include the [`ETag` HTTP header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag).
+* Clients receiving `Etag`s SHOULD use the [`If-None-Match` HTTP header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match) for subsequent requests.
+* HTTP responses to requests containing the `If-None-Match` HTTP header SHOULD respect it by returning a [304 Not Modified](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/304) when appropriate.
 
 ### Version Endpoints
 
@@ -635,6 +639,7 @@ Field Name | REQUIRED | Type | Defines
 `vehicle_types[].rated_power`<br/>*(added in v2.3)* | OPTIONAL | Non-negative Integer | The rated power of the motor for this vehicle type in watts.
 `vehicle_types[].default_reserve_time`<br/>*(added in v2.3)* | Conditionally REQUIRED | Non-negative Integer | REQUIRED if `reservation_price_per_min` or `reservation_price_flat_rate` are defined. Maximum time in minutes that a vehicle can be reserved before a rental begins. When a vehicle is reserved by a user, the vehicle remains locked until the rental begins. During this time the vehicle is unavailable and cannot be reserved or rented by other users. The vehicle status in `vehicle_status.json` MUST be set to `is_reserved = true`. If the value of `default_reserve_time` elapses without a rental beginning, the vehicle status MUST change to `is_reserved = false`. If `default_reserve_time` is set to `0`, the vehicle type cannot be reserved. 
 `vehicle_types[].return_constraint`<br/>*(as of v2.3)*| OPTIONAL | Enum | The conditions for returning the vehicle at the end of the rental. <br /><br />Current valid values are:<br /><ul><li>`free_floating` _(The vehicle can be returned anywhere permitted within the service area. Note that the vehicle is subject to rules in `geofencing_zones.json` if defined.)_</li><li>`roundtrip_station` _(The vehicle has to be returned to the same station from which it was initially rented. Note that a specific station can be assigned to the vehicle in `vehicle_status.json` using `home_station`.)_</li><li>`any_station` _(The vehicle has to be returned to any station within the service area.)_</li><li>`hybrid` (The vehicle can be returned to any station, or anywhere else permitted within the service area. Note that the vehicle is subject to rules in `geofencing_zones.json` if defined.)</li>
+`vehicle_types[].min_age`<br/>*(added in v3.1-RC3)*| OPTIONAL | Non-negative Integer | Minimum age required to use this vehicle.
 `vehicle_types[].vehicle_assets`<br/>*(added in v2.3)*| OPTIONAL | Object | Object containing the branding information for this vehicle type.
 `vehicle_types[].vehicle_assets.icon_url`<br/>*(added in v2.3)*| REQUIRED | URL | A fully qualified URL pointing to the location of a graphic icon file that MAY be used to represent this vehicle type on maps and in other applications. File MUST be in SVG V1.1 format and MUST be either square or round.
 `vehicle_types[].vehicle_assets.icon_url_dark`<br/>*(added in v2.3)*| OPTIONAL | URL | A fully qualified URL pointing to the location of a graphic icon file to be used to represent this vehicle type when in dark mode on maps and in other applications. File MUST be in SVG V1.1 format and MUST be either square or round.
@@ -664,6 +669,7 @@ Field Name | REQUIRED | Type | Defines
         "wheel_count": 2,
         "default_reserve_time": 30,
         "return_constraint": "any_station",
+        "min_age": 14,
         "vehicle_assets": {
           "icon_url": "https://www.example.com/assets/icon_bicycle.svg",
           "icon_url_dark": "https://www.example.com/assets/icon_bicycle_dark.svg",
@@ -695,6 +701,7 @@ Field Name | REQUIRED | Type | Defines
         "wheel_count": 3,
         "default_reserve_time": 30,
         "return_constraint": "roundtrip_station",
+        "min_age": 16,
         "vehicle_assets": {
           "icon_url": "https://www.example.com/assets/icon_cargobicycle.svg",
           "icon_url_dark": "https://www.example.com/assets/icon_cargobicycle_dark.svg",
@@ -723,6 +730,7 @@ Field Name | REQUIRED | Type | Defines
         "default_reserve_time": 30,
         "max_range_meters": 12345,
         "return_constraint": "free_floating",
+        "min_age": 18,
         "vehicle_assets": {
           "icon_url": "https://www.example.com/assets/icon_escooter.svg",
           "icon_url_dark": "https://www.example.com/assets/icon_escooter_dark.svg",
@@ -756,6 +764,7 @@ Field Name | REQUIRED | Type | Defines
         "default_reserve_time": 0,
         "max_range_meters": 523992,
         "return_constraint": "roundtrip_station",
+        "min_age": 18,
         "vehicle_accessories": [
           "doors_4",
           "automatic",
@@ -815,10 +824,10 @@ Field Name | REQUIRED | Type | Defines
 `stations[].capacity` | OPTIONAL | Non-negative integer | Number of total docking points installed at this station, both available and unavailable, regardless of what vehicle types are allowed at each dock. <br/><br/>If this is a virtual station defined using the `is_virtual_station` field, this number represents the total number of vehicles of all types that can be parked at the virtual station.<br/><br/>If the virtual station is defined by `station_area`, this is the number that can park within the station area. If `lat`/`lon` are defined, this is the number that can park at those coordinates.
 `stations[].vehicle_types_capacity` <br/>*(as of v3.0)* | OPTIONAL | Array&lt;Object&gt; | These objects are used to model the parking capacity of virtual stations (defined using the `is_virtual_station` field) for each vehicle type that can be returned to this station. The total number of vehicles from each of these objects SHOULD add up to match the value specified in the `capacity` field.
 `stations[].vehicle_types_capacity[].vehicle_type_ids` <br/>*(as of v3.0)* | REQUIRED | Array&lt;ID&gt; | An array of `vehicle_type_ids`, as defined in `vehicle_types.json`, that may park at the virtual station.
-`stations[].vehicle_types_capacity[].count`| REQUIRED | Non-negative integer | A number representing the total number of vehicles of the specified `vehicle_type_ids` that can park within the virtual station.<br /><br />If the virtual station is defined by `station_area`, this is the number that can park within the station area. If `lat`/`lon` is defined, this is the number that can park at those coordinates.
+`stations[].vehicle_types_capacity[].count` <br/>*(as of v3.0)* | REQUIRED | Non-negative integer | A number representing the total number of vehicles of the specified `vehicle_type_ids` that can park within the virtual station.<br /><br />If the virtual station is defined by `station_area`, this is the number that can park within the station area. If `lat`/`lon` is defined, this is the number that can park at those coordinates.
 `stations[].vehicle_docks_capacity` <br/>*(as of v3.0)* | OPTIONAL | Array&lt;Object&gt; | These objects are used to model the total docking capacity of a station, both available and unavailable, for each type of vehicle that may dock at this station. The total number of docks from each of these objects SHOULD add up to match the value specified in the `capacity` field.
 `stations[].vehicle_docks_capacity[].vehicle_type_ids` <br/>*(as of v3.0)* | REQUIRED | Array&lt;ID&gt; | An array of `vehicle_type_ids` that are able to use a particular type of dock at the station.
-`stations[].vehicle_docks_capacity[].count`| REQUIRED | Non-negative integer | A number representing the total number of docks at the station, both available and unavailable, that may accept the vehicle types specified by `vehicle_type_ids`.
+`stations[].vehicle_docks_capacity[].count` <br/>*(as of v3.0)* | REQUIRED | Non-negative integer | A number representing the total number of docks at the station, both available and unavailable, that may accept the vehicle types specified by `vehicle_type_ids`.
 `stations[].is_valet_station` <br/>*(added in v2.1)* | OPTIONAL | Boolean | Are valet services provided at this station? <br /><br /> `true` - Valet services are provided at this station. <br /> `false` - Valet services are not provided at this station. <br /><br /> If this field is empty, it is assumed that valet services are not provided at this station. <br><br>This field’s boolean SHOULD be set to `true` during the hours which valet service is provided at the station. Valet service is defined as providing unlimited capacity at a station.
 `stations[].is_charging_station` <br/>*(added in v2.3)* | OPTIONAL | Boolean | Does the station support charging of electric vehicles? <br /><br /> `true` - Electric vehicle charging is available at this station. <br /> `false` -  Electric vehicle charging is not available at this station.
 `stations[].rental_uris` | OPTIONAL | Object | Contains rental URIs for Android, iOS, and web in the `android`, `ios`, and `web` fields. See [examples](#deep-links-examples) of how to use these fields and [supported analytics](#analytics).
@@ -940,11 +949,11 @@ Field Name | REQUIRED | Type | Defines
 ---|---|---|---
 `stations` | REQUIRED | Array&lt;Object&gt; | Contains one object per station.
 `stations[].station_id` | REQUIRED | ID | Identifier of a station. See [station_information.json](#station_informationjson).
-`stations[].num_vehicles_available` | REQUIRED | Non-negative integer | Number of functional vehicles physically at the station that may be offered for rental. To know if the vehicles are available for rental, see `is_renting`. <br/><br/>If `is_renting` = `true` this is the number of vehicles that are currently available for rent. If `is_renting` =`false` this is the number of vehicles that would be available for rent if the station were set to allow rentals.
+`stations[].num_vehicles_available` <br/>*(as of v3.0)* | REQUIRED | Non-negative integer | Number of functional vehicles physically at the station that may be offered for rental. To know if the vehicles are available for rental, see `is_renting`. <br/><br/>If `is_renting` = `true` this is the number of vehicles that are currently available for rent. If `is_renting` =`false` this is the number of vehicles that would be available for rent if the station were set to allow rentals.
 `stations[].vehicle_types_available` <br/>*(added in v2.1)* | Conditionally REQUIRED | Array&lt;Object&gt; | REQUIRED if the [vehicle_types.json](#vehicle_typesjson) file has been defined. This field's value is an array of objects. Each of these objects is used to model the total number of each defined vehicle type available at a station. The total number of vehicles from each of these objects SHOULD add up to match the value specified in the `num_vehicles_available`  field.
 `stations[].vehicle_types_available[].vehicle_type_id` <br/>*(added in v2.1)* | REQUIRED | ID | The `vehicle_type_id` of each vehicle type at the station as described in [vehicle_types.json](#vehicle_typesjson). A vehicle type not available at the station can be omitted from the list or specified with `count` = `0`.
 `stations[].vehicle_types_available[].count` <br/>*(added in v2.1)* | REQUIRED | Non-negative integer | A number representing the total number of available vehicles of the corresponding `vehicle_type_id` as defined in [vehicle_types.json](#vehicle_typesjson) at the station.
-`stations[].num_vehicles_disabled` | OPTIONAL | Non-negative integer | Number of disabled vehicles of any type at the station. Vendors who do not want to publicize the number of disabled vehicles or docks in their system can opt to omit station `capacity` (in [station_information.json](#station_informationjson), `num_vehicles_disabled`, and `num_docks_disabled` *(as of v2.0)*. If station `capacity` is published, then broken docks/vehicles can be inferred (though not specifically whether the decreased capacity is a broken vehicle or dock).
+`stations[].num_vehicles_disabled` <br/>*(as of v3.0)* | OPTIONAL | Non-negative integer | Number of disabled vehicles of any type at the station. Vendors who do not want to publicize the number of disabled vehicles or docks in their system can opt to omit station `capacity` (in [station_information.json](#station_informationjson), `num_vehicles_disabled`, and `num_docks_disabled` *(as of v2.0)*. If station `capacity` is published, then broken docks/vehicles can be inferred (though not specifically whether the decreased capacity is a broken vehicle or dock).
 `stations[].num_docks_available` | Conditionally REQUIRED <br/>*(as of v2.0)* | Non-negative integer | REQUIRED except for stations that have unlimited docking capacity (e.g. virtual stations) *(as of v2.0)*. Number of functional docks physically at the station that are able to accept vehicles for return. To know if the docks are accepting vehicle returns, see `is_returning`. <br /><br/> If `is_returning` = `true` this is the number of docks that are currently available to accept vehicle returns. If `is_returning` = `false` this is the number of docks that would be available if the station were set to allow returns.
 `stations[].vehicle_docks_available` <br/>*(added in v2.1)* | Conditionally REQUIRED | Array&lt;Object&gt; | This field is REQUIRED in feeds where the [vehicle_types.json](#vehicle_typesjson) is defined and where certain docks are only able to accept certain vehicle types. If every dock at the station is able to accept any vehicle type, then this field is not REQUIRED. This field's value is an array of objects. Each of these objects is used to model the number of docks available for certain vehicle types. The total number of docks from each of these objects SHOULD add up to match the value specified in the `num_docks_available` field.
 `stations[].vehicle_docks_available[].vehicle_type_ids` <br/>*(added in v2.1)* | REQUIRED | Array&lt;ID&gt; | An array of `vehicle_type_ids` that are able to use a particular type of dock at the station
@@ -1151,7 +1160,7 @@ Field Name | REQUIRED | Type | Defines
 ---|---|---|---
 `vehicles` | REQUIRED | Array&lt;Object&gt; | Contains one object per vehicle.
 `vehicles[].vehicle_id` | REQUIRED | ID | Identifier of a vehicle. The `vehicle_id` identifier MUST be rotated to a random string after each trip to protect user privacy *(as of v2.0)*. Use of persistent vehicle IDs poses a threat to user privacy. The `vehicle_id` identifier SHOULD only be rotated once per trip.<br/><br/>The `vehicle_id` SHOULD be the same as in [vehicle_status.json](#vehicle_statusjson) if the file has been defined and the vehicle is currently available.
-`vehicles[].vehicle_type_id` | REQUIRED | ID | Unique identifier of a vehicle type as defined in [vehicle_types.json](#vehicle_typesjson).
+`vehicles[].vehicle_type_id` | Conditionally REQUIRED | ID | Unique identifier of a vehicle type as defined in [vehicle_types.json](#vehicle_typesjson). REQUIRED if the [vehicle_types.json](#vehicle_typesjson) file is defined.
 `vehicles[].station_id` | REQUIRED | ID | The `station_id` of the station where this vehicle is located when available as defined in [station_information.json](#station_informationjson).
 `vehicles[].pricing_plan_id` | OPTIONAL | ID | The `plan_id` of the pricing plan this vehicle is eligible for as described in [system_pricing_plans.json](#system_pricing_plansjson). If this field is defined it supersedes `default_pricing_plan_id` in `vehicle_types.json`. This field SHOULD be used to override `default_pricing_plan_id` in `vehicle_types.json` to define pricing plans for individual vehicles when necessary.
 `vehicles[].vehicle_equipment` | OPTIONAL | Array&lt;String&gt; | List of vehicle equipment provided by the operator in addition to the accessories already provided in the vehicle (field `vehicle_accessories` of `vehicle_types.json`) but subject to more frequent updates.<br/><br/>Current valid values are:<ul><li>`child_seat_a` _(Baby seat ("0-10kg"))_</li><li>`child_seat_b`	 _(Seat or seat extension for small children ("9-18 kg"))_</li><li>`child_seat_c`	_(Seat or seat extension for older children ("15-36 kg"))_</li><li>`winter_tires` 	_(Vehicle has tires for winter weather)_</li><li>`snow_chains`</li></ul>
@@ -1302,7 +1311,7 @@ Field Name | REQUIRED | Type | Defines
 
 **Example 1:**
 
-The user does not pay more than the base price for the first 10 km. After 10 km the user pays $1 per km. After 25 km the user pays $0.50 per km and an additional $3 every 5 km, the extension price, in addition to $0.50 per km.
+This example demonstrates a pricing scheme where the fare is calculated per x minutes and then per minute. The user is charged $2 for the first half-hour (base price). For the second half-hour, the user is charged $3 more. Beyond one hour, the user is charged $0.10 more per min.
 
 ```json
 {
@@ -1325,26 +1334,21 @@ The user does not pay more than the base price for the first 10 km. After 10 km 
         "is_taxable": false,
         "description": [
           {
-            "text": "Includes 10km, overage fees apply after 10km.",
+            "text": "First half-hour: $2, second half-hour: $3, beyond one hour: $0.10/min",
             "language": "en"
           }
         ],
-        "per_km_pricing": [
+        "per_min_pricing": [
           {
-            "start": 10,
-            "rate": 1.00,
-            "interval": 1,
-            "end": 25
-          },
-          {
-            "start": 25,
-            "rate": 0.50,
-            "interval": 1
-          },
-          {
-            "start": 25,
+            "start": 30,
+            "end": 60,
             "rate": 3.00,
-            "interval": 5
+            "interval": 0
+          },
+          {
+            "start": 60,
+            "rate": 0.10,
+            "interval": 1
           }
         ]
       }

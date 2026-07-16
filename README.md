@@ -41,7 +41,7 @@ If you are new to engaging with the community on this repository, firstly welcom
 Find a real-world example of the governance in action [here](https://github.com/MobilityData/gbfs/pull/454). For a more in depth look at the change and contribution process, go to [governance.md](https://github.com/MobilityData/gbfs/blob/master/governance.md).
 
 ### Project Roadmap
-MobiltyData has compiled a [project roadmap](https://portal.productboard.com/26qpteg4wct9px3jts94uqv8/tabs/99-planned) with a list of major features, changes and other work coming up in the near future.
+MobiltyData has compiled a [project roadmap](https://gbfs.org/community/#in-discussion) with a list of major features, changes and other work coming up in the near future.
 
 ## Current Version *(Recommended)* 
 |   Version | Type  | Release Date |  Status | JSON Schema | Release Notes |
@@ -59,8 +59,7 @@ Release Candidates will receive *Current Version* status when they have been ful
 
 |  Version | Type  | Release Date   | Status                     | JSON Schema                                                                            | Release Notes       |
 |:---:|:-----:|----------------|----------------------------|----------------------------------------------------------------------------------------|---------------------|
-| [v3.1-RC2](https://github.com/MobilityData/gbfs/blob/v3.1-RC2/gbfs.md) | MINOR | May 28, 2025 | :white_check_mark: Ready for implementation | coming soon | [v3.1-RC2 Release Notes](https://github.com/MobilityData/gbfs/releases/tag/v3.1-RC2) |
-| [v3.1-RC](https://github.com/MobilityData/gbfs/blob/v3.1-RC/gbfs.md) | MINOR | May 22, 2024 | :white_check_mark: Ready for implementation | [v3.1-RC Schema](https://github.com/MobilityData/gbfs-json-schema/tree/master/v3.1-RC) | [v3.1-RC Release Notes](https://github.com/MobilityData/gbfs/releases/tag/v3.1-RC) |
+| [v3.1-RC3](https://github.com/MobilityData/gbfs/blob/v3.1-RC3/gbfs.md) | MINOR | May 26, 2026 | :white_check_mark: Ready for implementation | [v3.1-RC3 Schema](https://github.com/MobilityData/gbfs-json-schema/tree/master/v3.1-RC3) | [v3.1-RC3 Release Notes](https://github.com/MobilityData/gbfs/releases/tag/v3.1-RC3) |
 
 ### Past Version Releases 
 Past versions with *Supported* status MAY be patched to correct bugs or vulnerabilities but new features will not be introduced.<br />
@@ -115,6 +114,20 @@ Caution should be taken to avoid making changes to the spec that would render ex
 * **Speculative features are discouraged.**
 Each new addition to the spec adds complexity. We want to avoid additions to the spec that do not provide additional value to the shared mobility end user.
 
+## Common Data Licenses
+Below is a table of common licenses under which datasets can be made available. A permissive license will likely permit more apps and developers to ingest GBFS data. No recommendation for any particular license is offered here.
+
+Definitions of terms:
+- Requires attribution: Data users must give credit (attribution) to the data publisher and provide a link to the license.
+- Share-alike (viral): Derivative works (remixed, transformed, or built upon the material) must be distributed under the same license as the original.
+
+| *[SPDX License Identifier](https://spdx.org/licenses/)* | *Full name*                                           | *Human-readable license summary*                                                      | *License text*                                                | *Requires attribution* | *Share-alike (viral)* |
+|-------------------|-----------------------------------------------------|--------------------------------------------------------------|-------------------------------------------------------------|----------------------|---------------------|
+| CC0-1.0           | Creative Commons Universal Public Domain Dedication 1.0 | [Summary @ creativecommons.org](https://creativecommons.org/publicdomain/zero/1.0/)           | [Text @ creativecommons.org](https://creativecommons.org/publicdomain/zero/1.0/legalcode) | No                   | No                  |
+| CC-BY-4.0	         | Creative Commons Attribution 4.0 International      | [Summary @ creativecommons.org](https://creativecommons.org/licenses/by/4.0/)                 | [Text @ creativecommons.org](https://creativecommons.org/licenses/by/4.0/legalcode)       | Yes                  | No                  |
+| CDLA-Permissive-1.0	   | Community Data License Agreement Permissive 1.0                    | [Summary @ cdla.io](https://cdla.io/)                                             | [Text @ cdla.io](https://cdla.io/permissive-1-0/)                             | Yes                  | No                  |
+| ODC-By-1.0	            | Open Data Commons Attribution License 1.0           | [Summary @ opendatacommons.org](https://opendatacommons.org/licenses/by/summary/index.html)   | [Text @ opendatacommons.org](https://www.opendatacommons.org/licenses/by/1.0/)            | Yes                  | No                  |
+
 ## Systems Catalog - Systems Implementing GBFS
 There are hundreds of shared mobility systems publishing GBFS worldwide. This list contains all known systems publishing GBFS feeds and is maintained by the GBFS community. This is an incomplete list. If you have or are aware of a system that doesn’t appear on the list please add it.
 
@@ -144,7 +157,7 @@ Authentication Parameter Name | Conditionally REQUIRED | If authentication is re
 ## GBFS JSON Schemas
 Complete JSON schemas for each version of GBFS can be found [here](https://github.com/MobilityData/gbfs-json-schema).
 ## GBFS and Other Shared Mobility Resources
-Including APIs, datasets, validators, research, and software can be found [here](https://gbfs.org/toolbox/resources/).
+Including APIs, datasets, validators, research, and software can be found [here](https://gbfs.org/tools/).
 ## Relationship Between GBFS and MDS
 There are many similarities between GBFS and [MDS](https://github.com/openmobilityfoundation/mobility-data-specification) (Mobility Data Specification), however, their intended use cases are different. GBFS is a real-time or near real-time specification for public data primarily intended to provide transit advice through consumer-facing applications. MDS is not public data and is intended for use only by mobility regulators. Publishing a public GBFS feed is a [requirement](https://github.com/openmobilityfoundation/mobility-data-specification#gbfs-requirement) of all MDS compatible *Provider* APIs.
 ## Copyright
